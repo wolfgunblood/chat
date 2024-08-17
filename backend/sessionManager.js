@@ -1,7 +1,7 @@
 const sessions = new Map();
 const userMap = new Map();
 
-function saveSession(socketId, sessionId, username) {
+function saveSession(socketId, sessionId, username, mediaType, mediaUrl) {
   if (userMap.has(username)) {
     return false;
   }
@@ -11,6 +11,9 @@ function saveSession(socketId, sessionId, username) {
     username,
     online: true,
     typing: false,
+    picture: 'https://avatar.iran.liara.run/public',
+    mediaType,
+    mediaUrl,
   });
   userMap.set(username, sessionId);
   return true;

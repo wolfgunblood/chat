@@ -50,13 +50,15 @@ module.exports = (io, socket) => {
     }
   });
 
-  socket.on('privateMessage', ({ from, to, message }) => {
+  socket.on('privateMessage', ({ from, to, message, mediaType, mediaUrl }) => {
     const targetSession = findSessionById(to);
     if (targetSession && targetSession.online) {
       io.to(targetSession.socketId).emit('receiveMessage', {
         from,
         to,
         message,
+        mediaType,
+        mediaUrl,
       });
     } else {
       saveMessage(to, from, message);
