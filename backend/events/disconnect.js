@@ -1,12 +1,11 @@
-const { findSession, findAllSessions } = require('../sessionManager');
+const { findSessionById, findAllSessions } = require('../sessionManager');
 
 module.exports = (socket, io) => {
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
-    const session = findSession(socket.id);
+    const session = findSessionById(socket.id);
     if (session) {
-      session.online = false;
-      session.typing = false;
+      removeSession(session.sessionId);
       io.emit('updateUserList', findAllSessions());
     }
   });

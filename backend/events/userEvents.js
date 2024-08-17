@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const {
   saveSession,
-  findSession,
+  findSessionById,
   findAllSessions,
   updateSession,
 } = require('../sessionManager');
@@ -16,16 +16,20 @@ let sessions = new Map();
 
 module.exports = (io, socket) => {
   socket.on('login', (username, callback) => {
-    const sessionId = uuidv4();
-    sessions = saveSession(socket.id, sessionId, username);
-    // console.log(sessions);
+    const sessionId = require('uuid').v4();
+    const success = saveSession(socket.id, sessionId, username);
+
+    if (!success) {
+      callback({ success: false, message: 'User already logged in' });
+      return;
+    }
 
     callback({ success: true, sessionId });
     io.emit('updateUserList', findAllSessions());
   });
 
   socket.on('reconnect', (sessionId, callback) => {
-    const session = findSession(sessionId);
+    const session = findSessionById(sessionId);
     if (session) {
       session.socketId = socket.id;
       session.online = true;
@@ -47,7 +51,7 @@ module.exports = (io, socket) => {
   });
 
   socket.on('privateMessage', ({ from, to, message }) => {
-    const targetSession = findSession(to);
+    const targetSession = findSessionById(to);
     if (targetSession && targetSession.online) {
       io.to(targetSession.socketId).emit('receiveMessage', {
         from,
@@ -65,7 +69,7 @@ module.exports = (io, socket) => {
   });
 
   socket.on('typing', ({ to, typing }) => {
-    const targetSession = findSession(to);
+    const targetSession = findSessionById(to);
     const fromSession = Array.from(sessions.values()).find(
       (session) => session.socketId === socket.id
     );
@@ -95,7 +99,7 @@ module.exports = (io, socket) => {
   });
 
   socket.on('requestUserList', (callback) => {
-    const session = findSession(socket.id);
+    const session = findSessionById(socket.id);
     if (session) {
       const otherOnlineUsers = findAllSessions().filter(
         (user) => user.sessionId !== session.sessionId && user.online

@@ -1,6 +1,10 @@
 const sessions = new Map();
+const userMap = new Map();
 
 function saveSession(socketId, sessionId, username) {
+  if (userMap.has(username)) {
+    return false;
+  }
   sessions.set(sessionId, {
     socketId,
     sessionId,
@@ -8,24 +12,35 @@ function saveSession(socketId, sessionId, username) {
     online: true,
     typing: false,
   });
-  return sessions;
+  userMap.set(username, sessionId);
+  return true;
 }
 
-function findSession(sessionId) {
+function removeSession(sessionId) {
+  const session = sessions.get(sessionId);
+  if (session) {
+    userMap.delete(session.username);
+    sessions.delete(sessionId);
+  }
+}
+
+function findSessionById(sessionId) {
   return sessions.get(sessionId);
+}
+
+function findSessionByUsername(username) {
+  const sessionId = userMap.get(username);
+  return sessionId ? sessions.get(sessionId) : null;
 }
 
 function findAllSessions() {
   return Array.from(sessions.values());
 }
 
-function clearMessagesForSession(sessionId) {
-  // Implementation
-}
-
 module.exports = {
   saveSession,
-  findSession,
+  removeSession,
+  findSessionById,
+  findSessionByUsername,
   findAllSessions,
-  clearMessagesForSession,
 };
