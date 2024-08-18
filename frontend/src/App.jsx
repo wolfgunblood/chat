@@ -147,6 +147,17 @@ export default function Hero() {
     setIsTyping(typing);
     setTypingUser(username || "Someone");
   }, []);
+  // const handleTyping = useCallback(
+  //   ({ username, typing, sessionId: typingSessionId }) => {
+  //     if (recipientSessionId === typingSessionId) {
+  //       setIsTyping(typing);
+  //       setTypingUser(username || "Someone");
+  //     } else {
+  //       setIsTyping(false);
+  //     }
+  //   },
+  //   [recipientSessionId]
+  // );
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -410,7 +421,7 @@ export default function Hero() {
             </TabsList>
           </Tabs>
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex flex-col">
           {filteredUsers.map((user, index) => (
             <div
               key={index}
@@ -430,7 +441,7 @@ export default function Hero() {
                   </h3>
                 </div>
                 {/* <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p> */}
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {lastMessages[user.sessionId] && (
                       <span className="text-xs">

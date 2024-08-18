@@ -11,13 +11,12 @@ const { saveSession } = require('./sessionManager');
 const app = express();
 const server = http.createServer(app);
 
-// Enable CORS for all origins
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
 const io = socketIo(server, {
   cors: {
-    origin: '*', // Allow all origins
+    origin: '*',
     methods: ['GET', 'POST'],
   },
 });
