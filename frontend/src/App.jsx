@@ -20,6 +20,7 @@ import {
   Smile,
   SendHorizontal,
   CircleDot,
+  Dot,
 } from "lucide-react";
 import io from "socket.io-client";
 import { AvatarFallback, AvatarImage } from "./components/ui/avatar";
@@ -41,6 +42,8 @@ export default function Hero() {
   const [uploading, setUploading] = useState(false);
   const [lastMessages, setLastMessages] = useState({});
   const [currentUser, setCurrentUser] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleReconnect = useCallback(() => {
     const storedSessionId = localStorage.getItem("sessionId");
@@ -122,7 +125,11 @@ export default function Hero() {
         const otherUserId = from === sessionId ? to : from;
         setLastMessages((prev) => ({
           ...prev,
-          [otherUserId]: message,
+          [otherUserId]:
+            message ||
+            `${
+              mediaType.charAt(0).toUpperCase() + mediaType.slice(1)
+            } received`,
         }));
         if (from !== recipientSessionId) {
           // Increment unread message count for this user
@@ -214,15 +221,31 @@ export default function Hero() {
             {
               from: sessionId,
               to: recipientSessionId,
-              mediaType,
+              mediaType: mediaType,
               mediaUrl: fileUrl,
             },
           ]);
-          setLastMessages();
+          setLastMessages((prev) => ({
+            ...prev,
+            [recipientSessionId]: `${
+              mediaType.charAt(0).toUpperCase() + mediaType.slice(1)
+            } sent`,
+          }));
         })
         .finally(() => setUploading(false));
     }
   };
+
+  const filteredUsers = users
+    .filter((user) => {
+      if (activeTab === "unread") {
+        return notifications[user.sessionId];
+      }
+      return true;
+    })
+    .filter((user) =>
+      user.username.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const ChatBubble = ({ message }) => {
     console.log(message);
@@ -299,6 +322,13 @@ export default function Hero() {
             placeholder="Enter your username"
             className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
+          <input
+            type="password"
+            // value={username}
+            // onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter password"
+            className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             onClick={handleLogin}
@@ -314,6 +344,7 @@ export default function Hero() {
   // console.log(users);
   console.log(lastMessages);
   // console.log(input);
+  // console.log(messages);
 
   return (
     <div className="flex h-screen bg-white">
@@ -322,32 +353,70 @@ export default function Hero() {
         <div className="p-4">
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input type="search" placeholder="Search" className="pl-10" />
+            <Input
+              type="search"
+              placeholder="Search"
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <Tabs defaultValue="all" className="mb-4">
+          <Tabs
+            defaultValue="all"
+            className="mb-4"
+            onValueChange={(value) => setActiveTab(value)}
+          >
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all" className="text-xs">
+              <TabsTrigger
+                value="all"
+                className={`text-xs ${
+                  activeTab === "all"
+                    ? "text-orange-500 border-b-2 border-orange-500"
+                    : ""
+                }`}
+              >
                 All
               </TabsTrigger>
-              <TabsTrigger value="unread" className="text-xs">
+              <TabsTrigger
+                value="unread"
+                className={`text-xs ${
+                  activeTab === "unread"
+                    ? "text-orange-500 border-b-2 border-orange-500"
+                    : ""
+                }`}
+              >
                 Unread
               </TabsTrigger>
-              <TabsTrigger value="archived" className="text-xs">
+              <TabsTrigger
+                value="archived"
+                className={`text-xs ${
+                  activeTab === "archived"
+                    ? "text-orange-500 border-b-2 border-orange-500"
+                    : ""
+                }`}
+              >
                 Archived
               </TabsTrigger>
-              <TabsTrigger value="blocked" className="text-xs">
+              <TabsTrigger
+                value="blocked"
+                className={`text-xs ${
+                  activeTab === "blocked"
+                    ? "text-orange-500 border-b-2 border-orange-500"
+                    : ""
+                }`}
+              >
                 Blocked
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
         <ScrollArea className="flex-1">
-          {users.map((user, index) => (
+          {filteredUsers.map((user, index) => (
             <div
               key={index}
               onClick={() => handleUserClick(user.sessionId)}
               className={`flex items-center p-4 hover:bg-gray-100 cursor-pointer ${
-                user.online ? "bg-green-100" : "bg-red-100"
+                user.online ? "" : ""
               }`}
             >
               <Avatar>
@@ -361,12 +430,20 @@ export default function Hero() {
                   </h3>
                 </div>
                 {/* <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p> */}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    {lastMessages[user.sessionId] || "No messages yet"}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    {lastMessages[user.sessionId] && (
+                      <span className="text-xs">
+                        {user.username}
+                        {":"}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500 truncate w-40">
+                      {lastMessages[user.sessionId]}
+                    </span>
+                  </div>
                   {notifications[user.sessionId] && (
-                    <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                    <span className="bg-red-400 text-white rounded-md px-2 py-1 text-xs">
                       {notifications[user.sessionId]}
                     </span>
                   )}
@@ -406,19 +483,31 @@ export default function Hero() {
                     ?.username
                 }
               />
-              <AvatarFallback>CN</AvatarFallback>
             </Avatar>{" "}
             {/* {user && <CircleDot stroke={user?.online ? "green" : "red"} />} */}
-            <div>
+            <div className="ml-2">
               {recipientSessionId && (
-                <h2 className="font-semibold ml-4">
-                  {" "}
-                  {
-                    users.find((user) => user.sessionId === recipientSessionId)
-                      ?.username
-                  }
-                </h2>
+                <span className="flex items-center">
+                  <h2 className="font-bold text-xl">
+                    {
+                      users.find(
+                        (user) => user.sessionId === recipientSessionId
+                      )?.username
+                    }
+                  </h2>
+                  <Dot
+                    size={42}
+                    className={`${
+                      users.find(
+                        (user) => user.sessionId === recipientSessionId
+                      )?.online
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  />
+                </span>
               )}
+
               {isTyping && <p className="text-sm text-gray-500">Typing...</p>}
             </div>
           </div>
