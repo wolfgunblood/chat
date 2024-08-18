@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>REcord</h1>
+  <h1>Record</h1>
   <p>🔥 Build using Vite and Node</p>
 
 </div>
@@ -7,10 +7,9 @@
 
 ![](<https://github.com/wolfgunblood/chat/blob/main/Screenshot%20(27).png>)
 
-# Tello
+# Record
 
-Tello is a trello style app which has sign in ,sign up create task and drag n drop functionality.
-This app is build using Next.js and Node.
+This chat application is designed for seamless real-time communication with essential features that enhance user interaction. It includes real-time messaging, online/offline status indicators, and a "Typing..." indicator to show when others are typing. The app also supports media sharing, allowing users to upload images and videos.
 <br /><br />
 
 ## Showcase 🎬
@@ -35,7 +34,7 @@ You can see a GIF of my application below.Preview the main functionality of the 
    ```bash
    git clone https://github.com/wolfgunblood/chat
    ```
-1. **Navigate to the project directory:**
+1. **Navigate to the frontend directory:**
    ```bash
    cd frontend
    ```
@@ -43,7 +42,7 @@ You can see a GIF of my application below.Preview the main functionality of the 
    ```bash
    npm install
    ```
-1. **Navigate to the project directory:**
+1. **Navigate to the backend directory:**
    ```bash
    cd backend
    ```
@@ -81,7 +80,7 @@ npm run dev
 ## Design Patterns
 
 <div align="center">
-<img src="frontend/public/design-patterns.jpeg" alt="Banner Image for Design pattern" width="300">
+<img src="/design-patterns.jpeg" alt="Banner Image for Design pattern" width="300">
 </div>
 
 **Maintainability** - I have tried to keep components modular and scalable and dynamic, with an emphasis on reusability and readability.
