@@ -31,6 +31,10 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+app.get('/', (req, res) => {
+  // console.log('Helath');
+  res.status(200).send('Health okk');
+});
 
 app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
