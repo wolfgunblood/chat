@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 app.get('/', (req, res) => {
-  // console.log('Helath');
+  console.log('Health');
   res.status(200).send('Health okk');
 });
 
